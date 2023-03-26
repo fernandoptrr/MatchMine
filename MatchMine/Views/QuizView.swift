@@ -8,74 +8,94 @@
 import SwiftUI
 
 struct QuizView: View {
-    @EnvironmentObject var viewModel: QuizViewModel
+    @EnvironmentObject private var viewModel: QuizViewModel
+    @EnvironmentObject private var multiPeer: MultipeerManager
     
     var body: some View {
         NavigationStack {
             VStack {
-                HStack {
-                    Text("Match Mine")
-                        .titleStyle()
-                    Spacer()
-                    Text("\(viewModel.currentQuestionIndex + 1) out of \(viewModel.quiz.count)")
-                        .foregroundColor(.primaryColor)
-                        .fontWeight(.heavy)
-                }
-                .padding(.bottom, 24)
-                
-                VStack {
-                    ProgressBar(value: viewModel.currentQuestionIndex + 1, maximum: viewModel.quiz.count + 1)
-                        .environmentObject(viewModel)
-                    Text(viewModel.getProgressLabel())
-                        .font(.footnote)
-                        .multilineTextAlignment(.center)
-                        .padding(.top, 4)
-                }
-                .padding(.bottom, 24)
-                
-                Text(viewModel.quiz[viewModel.currentQuestionIndex].text)
-                    .font(.title2)
-                    .multilineTextAlignment(.center)
-                    .bold()
-                    .padding(.horizontal)
-                    .padding(.bottom, 16)
-                
+                ProgressBar(
+                    label: viewModel.getProgressLabel(),
+                    value: viewModel.currentQuestionIndex + 1,
+                    maximum: viewModel.quiz.count + 1)
                 Spacer()
-                
-                LazyVGrid(columns: [GridItem(.adaptive(minimum: 140))]) {
-                    ForEach(viewModel.quiz[viewModel.currentQuestionIndex].options) { option in
-                        QuizOptionCard(option: option)
-                            .environmentObject(viewModel)
-                            .frame(height: 180)
-                            .padding(.all, 8)
-                    }
-                }
-                .disabled(viewModel.selectedAnswer != nil)
-                
+                QuizContent()
                 Spacer()
-                
-                HStack {
-                    Spacer()
-                    Button(action: {
-                        viewModel.submitAnswer()
-                    }, label: {
-                        Text("Next")
-                            .padding(.horizontal)
-                    })
-                    .buttonStyle(PrimaryButtonStyle())
-                    .disabled(viewModel.selectedAnswer == nil)
-                }
-                .padding(.top, 32)
-                .padding(.horizontal)
+                Footer()
             }
             .padding()
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .navigationBarBackButtonHidden()
         }
         .navigationDestination(
-            isPresented: .constant(viewModel.reachedEnd)) {
-                ResultsView()
+            isPresented: .constant(multiPeer.didRecieved && viewModel.reachedEnd)) {
+                if multiPeer.receivedResults != nil {
+                    ResultsView(viewModel: ResultsViewModel(
+                        userResults: UserResults(
+                            username: viewModel.username,
+                            options: viewModel.userAnswers
+                        ),
+                        peerResults: multiPeer.receivedResults!))
+                    .environmentObject(multiPeer)
+                }
             }
+    }
+}
+
+struct QuizContent: View {
+    @EnvironmentObject private var viewModel: QuizViewModel
+    
+    var body: some View {
+        VStack {
+            Text(viewModel.quiz[viewModel.currentQuestionIndex].text)
+                .font(.lato(.bold, size: .title2))
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 8)
+                .padding(.bottom, 24)
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 140))]) {
+                ForEach(viewModel.quiz[viewModel.currentQuestionIndex].options, id: \.label) { option in
+                    QuizOptionCard(option: option)
+                        .environmentObject(viewModel)
+                        .frame(height: 180)
+                        .padding(.all, 8)
+                }
+            }
+        }
+        .animation(.interactiveSpring(), value: viewModel.currentQuestionIndex)
+        .disabled(viewModel.selectedAnswer != nil)
+    }
+}
+
+struct Footer: View {
+    @EnvironmentObject private var viewModel: QuizViewModel
+    @EnvironmentObject private var multiPeer: MultipeerManager
+    
+    var body: some View {
+        HStack {
+            Text("\(viewModel.currentQuestionIndex + 1) out of \(viewModel.quiz.count)")
+                .font(.lato(.regular, size: .body))
+                .foregroundColor(.primaryColor)
+            Spacer()
+            Button(action: {
+                viewModel.submitAnswer()
+                if viewModel.reachedEnd {
+                    multiPeer.send(result: UserResults(
+                        username: viewModel.username,
+                        options: viewModel.userAnswers
+                    ))
+                }
+            }, label: {
+                Text(
+                    (viewModel.currentQuestionIndex != viewModel.quiz.count - 1)
+                    ? "Next" : "Finish"
+                )
+                .padding(.horizontal)
+            })
+            .buttonStyle(PrimaryButtonStyle())
+            .disabled(viewModel.selectedAnswer == nil || viewModel.reachedEnd)
+        }
+        .padding(.top, 48)
+        .padding(.horizontal)
     }
 }
 

@@ -2,13 +2,18 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_mm-service._tcp</string>
+		<string>_mm-service._udp</string>
+	</array>
 	<key>UIAppFonts</key>
 	<array>
-		<string>Lato-Light</string>
-		<string>Lato-Regular</string>
-		<string>Lato-Black</string>
-		<string>Lato-Bold</string>
-		<string>Lato-Thin</string>
+		<string>Lato-Light.ttf</string>
+		<string>Lato-Regular.ttf</string>
+		<string>Lato-Black.ttf</string>
+		<string>Lato-Bold.ttf</string>
+		<string>Lato-Thin.ttf</string>
 	</array>
 </dict>
 </plist>

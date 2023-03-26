@@ -1,6 +1,6 @@
 //
 //  AnswerGrid.swift
-//  TriviaGame
+//  MatchMine
 //
 //  Created by Fernando Putra on 23/03/23.
 //
@@ -9,8 +9,8 @@ import SwiftUI
 
 struct QuizOptionCard: View {
     @EnvironmentObject var viewModel: QuizViewModel
-    var option: Option
     @State private var isSelected = false
+    var option: Option
     
     var body: some View {
         ZStack {
@@ -20,8 +20,7 @@ struct QuizOptionCard: View {
             VStack {
                 LottieView(name: option.animation, loopMode: .loop)
                 Text(option.label)
-                    .font(.title3)
-                    .fontWeight(.medium)
+                    .font(.lato(.regular, size: .title3))
                     .foregroundColor(isSelected ? .white : .black)
                     .multilineTextAlignment(.center)
             }
@@ -30,7 +29,7 @@ struct QuizOptionCard: View {
         }
         .scaleEffect(isSelected ? 1.05 : 1)
         .onTapGesture {
-            withAnimation(.spring(response: 0.25)) {
+            withAnimation(.interactiveSpring()) {
                 if viewModel.selectedAnswer == nil {
                     viewModel.selectedAnswer = option
                     isSelected = true
@@ -44,10 +43,11 @@ struct AnswerGrid_Previews: PreviewProvider {
     static var previews: some View {
         QuizOptionCard(
             option: Option(
-                animation: Lotties.sherlock,
+                animation: Lotties.ironman,
                 label: "Pineapple",
                 disc: .lion,
-                interest: nil
+                interest: nil,
+                emoji: nil
             )
         )
         .frame(width: 140, height: 180)

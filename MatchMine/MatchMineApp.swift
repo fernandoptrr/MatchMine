@@ -9,9 +9,12 @@ import SwiftUI
 
 @main
 struct MatchMineApp: App {
+    @StateObject private var viewModel = QuizViewModel()
+
     var body: some Scene {
         WindowGroup {
             AppView()
+                .environmentObject(viewModel)
         }
     }
 }

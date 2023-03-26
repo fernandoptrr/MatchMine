@@ -8,11 +8,8 @@
 import SwiftUI
 
 struct AppView: View {
-    @StateObject private var viewModel = QuizViewModel()
-
     var body: some View {
         WelcomeView()
-            .environmentObject(viewModel)
     }
 }
 
