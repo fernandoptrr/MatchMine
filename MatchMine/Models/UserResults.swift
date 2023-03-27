@@ -42,14 +42,42 @@ struct UserResults: Codable {
         return options.compactMap { $0.emoji }
     }
     
+    func getAnimalAnimation() -> String {
+        switch animal {
+        case .lion:
+            return Lotties.lion
+        case .otter:
+            return Lotties.otter
+        case .beaver:
+            return Lotties.beaver
+        case .goldenRetriever:
+            return Lotties.dog
+        }
+    }
+    
     func getTextEmojis() -> String {
-        return emojis.map { $0.rawValue }.joined(separator: " ")
+        var textEmoji = emojis.map { $0.rawValue }.joined(separator: "")
+        switch animal {
+        case .lion:
+            textEmoji += "🏇🙋"
+            break
+        case .otter:
+            textEmoji += "🗣️🕺"
+            break
+        case .beaver:
+            textEmoji += "💼📆"
+            break
+        case .goldenRetriever:
+            textEmoji += "✌️👨‍👩‍👦"
+            break
+        }
+        return textEmoji
     }
     
     func getAnimalDetails() -> (animation: String, label: String, description: String) {
         switch animal {
         case .lion:
-            return ("roar", "Lion 🦁",
+            return (Lotties.lion, "Lion 🦁",
                 """
                 • You're a natural leader!
                 • You have a commanding presence and the courage to stand up for what you believe in.
@@ -57,7 +85,7 @@ struct UserResults: Codable {
                 """
             )
         case .otter:
-            return ("swim", "Otter 🦦",
+            return (Lotties.otter, "Otter 🦦",
                 """
                 • You're a social butterfly!
                 • You bring energy and excitement wherever you go and enjoy making people laugh.
@@ -65,7 +93,7 @@ struct UserResults: Codable {
                 """
             )
         case .beaver:
-            return ("build", "Beaver 🦫",
+            return (Lotties.beaver, "Beaver 🦫",
                 """
                 • You're a hard worker!
                 • You have a strong work ethic and take pride in your ability to get things done.
@@ -73,7 +101,7 @@ struct UserResults: Codable {
                 """
             )
         case .goldenRetriever:
-            return ("fetch", "Golden Retriever 🐶",
+            return (Lotties.dog, "Golden Retriever 🐶",
                 """
                 • You're a loyal and caring friend!
                 • You're empathetic and have a strong sense of fairness and justice.
@@ -82,5 +110,4 @@ struct UserResults: Codable {
             )
         }
     }
-    
 }

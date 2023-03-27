@@ -27,6 +27,11 @@ struct QuizView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .navigationBarBackButtonHidden()
         }
+        .alert(isPresented: .constant(viewModel.reachedEnd && !multiPeer.didRecieved)) {
+            Alert(
+                title: Text("Waiting for your peer to finish...")
+            )
+        }
         .navigationDestination(
             isPresented: .constant(multiPeer.didRecieved && viewModel.reachedEnd)) {
                 if multiPeer.receivedResults != nil {

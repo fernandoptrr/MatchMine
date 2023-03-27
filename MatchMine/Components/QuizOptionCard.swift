@@ -10,6 +10,7 @@ import SwiftUI
 struct QuizOptionCard: View {
     @EnvironmentObject var viewModel: QuizViewModel
     @State private var isSelected = false
+    let hapticFeedback = UINotificationFeedbackGenerator()
     var option: Option
     
     var body: some View {
@@ -32,6 +33,7 @@ struct QuizOptionCard: View {
             withAnimation(.interactiveSpring()) {
                 if viewModel.selectedAnswer == nil {
                     viewModel.selectedAnswer = option
+                    hapticFeedback.notificationOccurred(.success)
                     isSelected = true
                 }
             }
@@ -45,6 +47,7 @@ struct AnswerGrid_Previews: PreviewProvider {
             option: Option(
                 animation: Lotties.ironman,
                 label: "Pineapple",
+                explanation: "• You both are mindful/health-conscious people.",
                 disc: .lion,
                 interest: nil,
                 emoji: nil

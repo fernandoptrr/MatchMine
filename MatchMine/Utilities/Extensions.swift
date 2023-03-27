@@ -18,7 +18,6 @@ extension Text {
 extension Color {
     static let primaryColor = Color("PrimaryColor")
     static let onPrimaryColor = Color("OnPrimaryColor")
-    static let surfaceColor = Color("SurfaceColor")
 }
 
 extension Font {
@@ -31,6 +30,7 @@ extension Font {
     }
     
     enum FontSize: CGFloat {
+        case superLarge = 42.0
         case largeTitle = 34.0
         case title = 28.0
         case title2 = 22.0

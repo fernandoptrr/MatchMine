@@ -20,37 +20,52 @@ struct WelcomeView: View {
             NavigationLink(destination:
                             (multiPeer != nil) ? QuizView().environmentObject(multiPeer!) : nil,
                            isActive: $paired){}
-            VStack {
-                WelcomeText()
-                CustomTextField(text: $username)
-                Button {
-                    viewModel.username = username
-                    multiPeer = MultipeerManager(username: username)
-                    showSheet.toggle()
-                } label: {
-                    Text("Start")
+            ZStack {
+                VStack {
+                    WelcomeText()
+                        .padding(.top)
+                    CustomTextField(text: $username)
+                    Button {
+                        viewModel.username = username
+                        multiPeer = MultipeerManager(username: username)
+                        showSheet.toggle()
+                    } label: {
+                        Text("Start Now!")
+                            .font(.lato(.bold, size: .body))
+                    }
+                    .buttonStyle(PrimaryButtonStyle(
+                        isExpanded: true)
+                    )
+                    .disabled(username.isEmpty)
+                    .buttonStyle(PrimaryButtonStyle(isExpanded: true))
+                    .padding(.top, 32)
+                    Spacer()
+                    Image("logo")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 400)
+                        .offset(y: 80)
+                        .opacity(0.85)
                 }
-                .buttonStyle(PrimaryButtonStyle(
-                    isExpanded: true)
-                )
-                .disabled(username.isEmpty)
-                .buttonStyle(PrimaryButtonStyle(isExpanded: true))
-                .padding(.top, 32)
-                Spacer()
+                .padding()
+                .ignoresSafeArea(.keyboard)
+                .navigationBarBackButtonHidden()
+                .sheet(isPresented: $showSheet) {
+                    if multiPeer != nil {
+                        PairView(showSheet: $showSheet, paired: $paired)
+                            .environmentObject(multiPeer!)
+                            .padding(.vertical)
+                            .presentationDetents([.fraction(0.2), .medium])
+                    }
             }
-            .padding()
-            .ignoresSafeArea(.keyboard)
-            .navigationBarBackButtonHidden()
-            .sheet(isPresented: $showSheet) {
-                if multiPeer != nil {
-                    PairView(showSheet: $showSheet, paired: $paired)
-                        .environmentObject(multiPeer!)
-                        .padding(.vertical)
-                        .presentationDetents([.fraction(0.2), .medium])
-                }
             }
         }
         .onAppear{
+            if(multiPeer != nil) {
+                multiPeer!.endDiscoverForPeers()
+                multiPeer!.session.disconnect()
+                multiPeer = nil
+            }
             viewModel.resetQuiz()
         }
     }
@@ -61,14 +76,15 @@ struct WelcomeText: View {
         VStack(alignment: .leading) {
             Text("Welcome to")
                 .font(.lato(.bold, size: .title2))
-                .padding(.bottom, -8)
+                .padding(.bottom, -12)
             Text("MatchMine")
-                .font(.lato(.black, size: .largeTitle))
+                .font(.lato(.black, size: .superLarge))
                 .foregroundColor(.primaryColor)
                 .tracking(1)
-                .padding(.bottom, 8)
-            Text("Get to know your personality type and match with people to create meaningful connections.")
+                .padding(.bottom, 16)
+            Text("Get your personality traits and match with people to create meaningful connections.")
                 .font(.lato(.regular, size: .callout))
+                .foregroundColor(Color(.darkGray))
                 .lineSpacing(4)
                 .multilineTextAlignment(.leading)
         }
@@ -102,7 +118,8 @@ struct PairView: View {
         if !multiPeer.paired {
             VStack(alignment: .leading){
                 Text("Searching for nearby peers...")
-                    .font(.lato(.regular, size: .subheadline))
+                    .font(.lato(.ligth, size: .body))
+                    .foregroundColor(Color(.darkGray))
                     .padding(.horizontal)
                     .padding(.vertical, 8)
                 List(multiPeer.availablePeers, id: \.self) { peer in

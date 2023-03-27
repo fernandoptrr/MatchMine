@@ -10,70 +10,87 @@ import SwiftUI
 struct ResultsView: View {
     @EnvironmentObject private var multiPeer: MultipeerManager
     @State private var showDetails = false
+    @State private var showConfetti: Bool = false
+    
     let viewModel: ResultsViewModel
     
     var body: some View {
         NavigationStack{
-            VStack{
-                MatchingPersentage(value: 75)
-                HStack {
-                    UserCard(animation: Lotties.beach, username: viewModel.userResults.username)
-                    UserCard(animation: Lotties.mountain, username: viewModel.peerResults.username)
-                }
-                .padding(.horizontal, 12)
-                .padding(.top, 16)
-                MatchingDetails(text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna.")
-                    .padding(.top, 24)
-                Spacer()
-                Button {
-                    showDetails.toggle()
-                } label: {
-                    Text("Show Your Personality Details")
-                }
-                .buttonStyle(PrimaryButtonStyle())
-                .padding(.top, 32)
-                .sheet(isPresented: $showDetails) {
-                    PersonalDetails(
-                        title: viewModel.userResults.getAnimalDetails().label,
-                        emojis: viewModel.userResults.getTextEmojis(),
-                        interests: viewModel.userResults.interests,
-                        desc: viewModel.userResults.getAnimalDetails().description
-                    )
+            ScrollView {
+                ZStack{
+                    VStack{
+                        MatchingPersentage(text: "\(viewModel.getMatchingPercentage())%")
+                        HStack {
+                            UserCard(
+                                animation: viewModel.userResults.getAnimalAnimation(),
+                                username: viewModel.userResults.username)
+                            UserCard(
+                                animation: viewModel.peerResults.getAnimalAnimation(),
+                                username: viewModel.peerResults.username)
+                        }
+                        .padding(.horizontal, 12)
+                        .padding(.top, 16)
+                        MatchingDetails(text: viewModel.getMatchingDetails())
+                            .padding(.top, 24)
+                        Spacer()
+                        Button {
+                            showDetails.toggle()
+                        } label: {
+                            Text("Show Your Personality Details")
+                        }
+                        .buttonStyle(PrimaryButtonStyle())
+                        .padding(.top, 64)
+                        .padding(.bottom, 16)
+                        .sheet(isPresented: $showDetails) {
+                            PersonalDetails(
+                                title: viewModel.userResults.getAnimalDetails().label,
+                                emojis: viewModel.userResults.getTextEmojis(),
+                                interests: viewModel.userResults.interests,
+                                desc: viewModel.userResults.getAnimalDetails().description
+                            )
+                            .padding(.horizontal)
+                            .padding(.top, 32)
+                            .presentationDetents([.medium, .fraction(0.80)])
+                            .presentationDragIndicator(.visible)
+                        }
+                    }
                     .padding()
-                    .padding(.vertical)
-                    .presentationDetents([.medium, .fraction(0.9)])
-                    .presentationDragIndicator(.visible)
+                    .overlay(
+                        NavigationLink(destination: AppView(), label: {
+                            Image(
+                                systemName: "house.fill")
+                            .font(.title2)
+                            .foregroundColor(.white)
+                            .padding(.trailing, 16)
+                        }),
+                        alignment: .topTrailing
+                    )
+                    LottieView(name: Lotties.confetti,
+                               animationSpeed: 0.5,
+                               contentMode: .scaleAspectFill,
+                               play: $showConfetti)
+                    .allowsHitTesting(false)
                 }
             }
-            .overlay(
-                NavigationLink(destination: AppView(), label: {
-                    Image(
-                        systemName: "house.fill")
-                    .font(.title2)
-                    .foregroundColor(.white)
-                    .padding(.trailing, 16)
-                })
-                .simultaneousGesture(TapGesture().onEnded{
-                    multiPeer.session.disconnect()
-                }),
-                alignment: .topTrailing
-            )
-            .padding()
             .background(Color.primaryColor)
             .navigationBarBackButtonHidden()
+            .onAppear(perform: {
+                playSound(sound: "congrats-sound", type: "mp3")
+                showConfetti = true
+            })
         }
     }
 }
 
 struct MatchingPersentage: View {
-    let value: Int
+    let text: String
     
     var body: some View {
         VStack {
             Text("You are")
                 .foregroundColor(Color(.white))
                 .font(Font.custom("Lato", size: 20))
-            Text("\(value)%")
+            Text(text)
                 .foregroundColor(Color(.white))
                 .font(Font.custom("Lato", size: 64))
             
@@ -120,8 +137,10 @@ struct MatchingDetails: View {
                 Text("Matching personalities:")
                     .font(.lato(.regular, size: .body))
                 Text(text)
-                    .font(.lato(.regular, size: .callout))
-                    .padding(.top, 8)
+                    .font(.lato(.regular, size: .subheadline))
+                    .lineSpacing(4)
+                    .multilineTextAlignment(.leading)
+                    .padding(.top, 4)
             }
             .foregroundColor(.white)
             .padding(24)
@@ -129,7 +148,6 @@ struct MatchingDetails: View {
         .fixedSize(horizontal: false, vertical: true)
     }
 }
-
 
 struct PersonalDetails: View {
     let title: String
@@ -173,7 +191,7 @@ struct PersonalDetails: View {
                     
                     VStack(alignment: .leading) {
                         Text(title)
-                            .font(.lato(.regular, size: .body))
+                            .font(.lato(.bold, size: .body))
                         Text(desc)
                             .font(.lato(.regular, size: .subheadline))
                             .lineSpacing(8)
@@ -196,24 +214,27 @@ struct ResultsView_Previews: PreviewProvider {
                 Option(
                     animation: Lotties.pepperoniPizza,
                     label: "Pepperoni",
+                    explanation: "• You both are mindful/health-conscious people.",
                     disc: .beaver,
                     interest: .yoga,
-                    emoji: .haha
+                    emoji: nil
                 ),
                 Option(
                     animation: Lotties.pinapplePizza,
                     label: "Pineapple",
+                    explanation: "• You both are mindful/health-conscious people.",
                     disc: .lion,
                     interest: .beach,
-                    emoji: .hihi
+                    emoji: nil
                     
                 ),
                 Option(
                     animation: Lotties.mushroomPizza,
                     label: "Mushroom",
+                    explanation: "• You both are mindful/health-conscious people.",
                     disc: .goldenRetriever,
                     interest: .love,
-                    emoji: .hoho
+                    emoji: nil
                 )
             ]
         ), peerResults: UserResults(
@@ -222,24 +243,27 @@ struct ResultsView_Previews: PreviewProvider {
                 Option(
                     animation: Lotties.pepperoniPizza,
                     label: "Pepperoni",
+                    explanation: "• You both are mindful/health-conscious people.",
                     disc: .beaver,
                     interest: .yoga,
-                    emoji: .haha
+                    emoji: nil
                 ),
                 Option(
                     animation: Lotties.pinapplePizza,
                     label: "Pineapple",
+                    explanation: "• You both are mindful/health-conscious people.",
                     disc: .lion,
                     interest: .beach,
-                    emoji: .hihi
+                    emoji: nil
                     
                 ),
                 Option(
                     animation: Lotties.mushroomPizza,
                     label: "Mushroom",
+                    explanation: "• You both are mindful/health-conscious people.",
                     disc: .goldenRetriever,
                     interest: .love,
-                    emoji: .hoho
+                    emoji: nil
                 )
             ]
         )) )

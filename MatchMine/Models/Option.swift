@@ -10,6 +10,7 @@ import Foundation
 struct Option: Codable {
     let animation: String
     let label: String
+    let explanation: String
     let disc: Animal?
     let interest: Interest?
     let emoji: Emoji?
@@ -25,7 +26,7 @@ struct Option: Codable {
     enum Interest: String, Codable{
         case technology = "💻 Technology"
         case money = "💵 Money"
-        case love = "❤️ Love"
+        case love = "❤️ Romantic"
         case read = "📖 Reading"
         case beach = "🏖️ Beach"
         case mountain = "🏔️ Mountain"
@@ -38,9 +39,9 @@ struct Option: Codable {
     }
     
     enum Emoji: String, Codable {
-        case haha = "😎"
-        case hehe = "🤪"
-        case hihi = "😇"
-        case hoho = "🥳"
+        case trendSetter = "😎"
+        case iceBreaker = "🤪"
+        case follower = "😶"
+        case guider = "🤔"
     }
 }

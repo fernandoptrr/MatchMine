@@ -44,14 +44,12 @@ class QuizViewModel: ObservableObject {
     
     func getProgressLabel() -> String {
         switch currentQuestionIndex {
-        case 0...2:
-            return "Unwrap your personality with fun test!"
-        case 3...4:
-            return "You're doing great!"
+        case 2...4:
+            return "You're doing great 😎"
         case 5...6:
-            return "You're almost done!"
+            return "You're almost done 🙌"
         case 7:
-            return "Just one more question!"
+            return "One more question 🥳"
         default:
             return ""
         }
